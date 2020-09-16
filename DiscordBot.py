@@ -12,6 +12,7 @@ def read_token():
         lines = f.readlines()
         return lines[0].strip()
 
+
 MINUTES_TO_WAIT = 1
 messages = joined = 0
 status = cycle(["League of Lol", "with your mind", "with your fate", "with your secrets", "Fortine is for kids", "CS:GO is old", "Valoraahahahahnt","with your emotions"])
