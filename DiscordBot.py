@@ -7,16 +7,16 @@ from random import choice
 from itertools import cycle
 import os
 
-def read_token():
-    with open("token.txt", "r") as f:
-        lines = f.readlines()
-        return lines[0].strip()
 
-
+#number of minutes used at timer for loops
 MINUTES_TO_WAIT = 1
+#stats about messages sent and people who joined the server
 messages = joined = 0
+#Status the bot will cicle. All of them are memes of course
 status = cycle(["League of Lol", "with your mind", "with your fate", "with your secrets", "Fortine is for kids", "CS:GO is old", "Valoraahahahahnt","with your emotions"])
-token = read_token()
+#gets the token throught environments variables from heroku
+token = os.environ.get("BOT_TOKEN")
+
 
 bot = commands.Bot(command_prefix='.')
 
@@ -184,25 +184,73 @@ async def unban(ctx, *, member):
 #     if filename.endswith(".py"):
 #         bot.load_extension(f"cogs.{filename[:-3]}")
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Please pass in all required arguments")
+
 
 # @clear.error
 # async def clear_error(ctx, error):
 #     if isinstance(error, commands.MissingRequiredArgument):
 #         await ctx.send("please specify an amount of messages to delete")
 
+#Errors
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Please pass in all required arguments")
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("invalid command used")
+        await ctx.send("Invalid command used, use .info to see all the commands")
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send(f"{ctx.author.name} is not allowed to use that command")
 
+@bot.command()
+async def load(ctx, extension):
+    bot.load_extension(f"cogs.{extension}")
+    print(f'{extension} successfully loaded')
+
+@load.error
+async def load_error(ctx, error):
+    await ctx.send(f"The following error occured:```\n{error}\n```")
+
+@bot.command()
+async def unload(ctx, extension):
+    bot.unload_extension(f"cogs.{extension}")
+    await print(f'{extension} successfully un-loaded')
+
+@unload.error
+async def unload_error(ctx, error):
+ await ctx.send(f"The following error occured:```\n{error}\n```")
+
+@bot.command()
+async def reload(ctx, extension):
+    bot.unload_extension(f"cogs.{extension}")
+    bot.load_extension(f"cogs.{extension}")
+    print(f'{extension} successfully re-loaded')
+
+@reload.error
+async def unload_error(ctx, error):
+ await ctx.send(f"The following error occured:```\n{error}\n```")
+
+@bot.command(name = "load cogs", aliases = ["load all cogs", "load all"] )
+async def load_all_cogs():
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            bot.load_extension(f"cogs.{filename[:-3]}")
+
+@bot.command()
+async def check_cogs(ctx, cog_name):
+    try:
+        bot.load_extension(f"cogs.{cog_name}")
+    except commands.ExtensionAlreadyLoaded:
+        await ctx.send("Cog is loaded")
+    except commands.ExtensionNotFound:
+        await ctx.send("Cog not found")
+    else:
+        await ctx.send("Cog is unloaded")
+        bot.unload_extension(f"cogs.{cog_name}")
 
 bot.run(token)
