@@ -2,22 +2,20 @@ import discord
 from discord.ext import commands, tasks
 import os
 
-#gets the token throught environments variables from heroku
-#token = os.environ.get("BOT_TOKEN")
+# gets the token throught environments variables from heroku
+token = os.environ.get("BOT_TOKEN")
 
-def read_token():
-    with open("token.txt", "r") as f:
-        lines = f.readlines()
-        return lines[0].strip()
+# def read_token():
+#     with open("token.txt", "r") as f:
+#         lines = f.readlines()
+#         return lines[0].strip()
 
 #gets the token from a file if i am personally hosting the bot
-token = read_token()
+# token = read_token()
 
 
 
 bot = commands.Bot(command_prefix='.', help_command = None)
-
-#bot.remove_command("help")
 
 @bot.command(name = "loadAll", aliases = ["loadAllCogs", "loadEverything", "massLoad"])
 async def loadAllCogs(ctx):
