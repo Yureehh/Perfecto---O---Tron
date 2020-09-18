@@ -19,7 +19,7 @@ class Admin(commands.Cog):
         await discord.Member.disconnect()
 
     #the asterisc takes all the parameters passed after the command and puts it into reason, to cover usernames with spaces
-    @commands.command(name = "kick",aliases = ["kickUser", "Kick"], ,  help = "kicks a user if the caller has the permissions")
+    @commands.command(name = "kick",aliases = ["kickUser", "Kick"], help = "kicks a user if the caller has the permissions")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member : discord.Member, *, reason = None):
         await member.kick(reason = reason)

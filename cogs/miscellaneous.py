@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from random import choice
+from random import choice, randint
 
 class Misc(commands.Cog):
 
@@ -48,6 +48,17 @@ class Misc(commands.Cog):
         await ctx.send(f"# of Members: {len(id.members)}")
         for member in id.members:
             await ctx.send(f"{member.name}")
+    @commands.command(name = "roll6", aliases = ["rollD6", "rollDice6"], help = "Rolls typical dice")
+    async def rollD6(self, ctx):
+        await ctx.send(f"You rolled a {randint(1,6)}")
+
+    @commands.command(name = "roll20", aliases = ["rollD20", "rollDice20"], help = "Rolls a d20")
+    async def rollD20(self, ctx):
+        await ctx.send(f"You rolled a {randint(1,20)}")
+
+    @commands.command(name = "roll", aliases = ["rollBetween", "rollIn"], help = "Rolls a custom dice")
+    async def rollBetween(self, ctx, low=1, high=6):
+        await ctx.send(f"You rolled a {randint(low,high)}")
 
 def setup(bot):
     bot.add_cog(Misc(bot))
