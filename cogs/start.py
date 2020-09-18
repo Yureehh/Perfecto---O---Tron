@@ -5,7 +5,7 @@ import asyncio
 from itertools import cycle
 
 #number of minutes used at timer for loops
-MINUTES_TO_WAIT = 1
+MINUTES_TO_WAIT = 30
 
 #in the brackets there's the class you are extending
 class Start(commands.Cog):
@@ -20,7 +20,7 @@ class Start(commands.Cog):
 
     async def update_stats(self):
 
-        while not bot.is_closed():
+        while not self.bot.is_closed():
             try:
                 now = datetime.now()
                 current_time = now.strftime("%D %H:%M:%S")
@@ -40,7 +40,7 @@ class Start(commands.Cog):
     async def on_ready(self):
         await self.bot.change_presence(status=discord.Status.online )
         self.changeStatus.start()
-        self.bot.loop.create_task(update_stats())
+        self.bot.loop.create_task(self.update_stats())
         print("Bot launched")
 
     @tasks.loop(seconds = MINUTES_TO_WAIT * 60)
@@ -50,7 +50,7 @@ class Start(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         self.messages += 1
-        await self.bot.process_commands(message)
+        #await self.bot.process_commands(message)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -65,6 +65,14 @@ class Start(commands.Cog):
         for channel in member.guild.channels:
             if str(channel) == "welcome" or str(channel) == "goodbyes":
                 await channel.send(f"{member.mention} left the server", file = discord.File("images/missYou.jpg"))
+
+    #happens when someone tries to rename himself
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        n = after.nick
+        if n:
+            if "Yureeh" in n.lower():
+                await after.edit(nick = "Don't you dare")
 
 def setup(bot):
     bot.add_cog(Start(bot))

@@ -3,27 +3,42 @@ from discord.ext import commands, tasks
 import os
 
 #gets the token throught environments variables from heroku
-token = "NzU1MDA0ODI3NzI5Mzk1NzMy.X18_Cg.kK2qN06rp4yyOT4_U5VFpnhjgq0"
 #token = os.environ.get("BOT_TOKEN")
 
+def read_token():
+    with open("token.txt", "r") as f:
+        lines = f.readlines()
+        return lines[0].strip()
 
-bot = commands.Bot(command_prefix='.')
-
-bot.remove_command('help')
-
-def embed():
-    embed = discord.Embed(title="Help on BOT", description="Some useful commands")
-    embed.add_field(name=".help",       value="shows this message")
-    embed.add_field(name=".hello",      value="Greets the user")
-    embed.add_field(name=".users",      value="Prints number and names of all the users")
-    embed.add_field(name=".question",   value="Answers randomly to the user question")
-    embed.add_field(name=".ping",       value="return the user ping")
-    return embed
+#gets the token from a file if i am personally hosting the bot
+token = read_token()
 
 
 
+bot = commands.Bot(command_prefix='.', help_command = None)
+
+#bot.remove_command("help")
+
+@bot.command(name = "loadAll", aliases = ["loadAllCogs", "loadEverything", "massLoad"])
+async def loadAllCogs(ctx):
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            try:
+                bot.load_extension(f"cogs.{filename[:-3]}")
+                await ctx.send(f'{filename[:-3]} successfully loaded')
+            except commands.ExtensionAlreadyLoaded:
+                await ctx.send(f"Cog {filename[:-3]} is already loaded")
 
 
+@bot.command(name = "unloadAll", aliases = ["unloadAllCogs", "unloadEverything", "massUnload"])
+async def unloadAllCogs(ctx):
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            try:
+                bot.unload_extension(f"cogs.{filename[:-3]}")
+                await ctx.send(f'{filename[:-3]} successfully unloaded')
+            except commands.ExtensionAlreadyLoaded:
+                await ctx.send(f"Cog {filename[:-3]} is not loaded")
 
 
 @bot.command()
@@ -54,17 +69,9 @@ async def reload(ctx, extension):
 async def unload_error(ctx, error):
  await ctx.send(f"The following error occured:```\n{error}\n```")
 
-@bot.command(name = "load cogs", aliases = ["load all cogs", "load all"] )
-async def load_all_cogs(ctx):
-    for filename in os.listdir("./cogs"):
-        if filename.endswith(".py"):
-            try:
-                bot.load_extension(f"cogs.{filename[:-3]}")
-            except commands.ExtensionAlreadyLoaded:
-                await ctx.send(f"Cog {filename} is already loaded")
 
-@bot.command()
-async def check_cogs(ctx, cog_name):
+@bot.command(name = "checkCog", aliases = ["checkOnlineCog"])
+async def checkOnlineCog(ctx, cog_name):
     try:
         bot.load_extension(f"cogs.{cog_name}")
     except commands.ExtensionAlreadyLoaded:
@@ -73,6 +80,25 @@ async def check_cogs(ctx, cog_name):
         await ctx.send("Cog not found")
     else:
         await ctx.send("Cog is unloaded")
-        bot.unload_extension(f"cogs.{cog_name}")
+
+@bot.command(name = "checkCogs", aliases = ["checkOnlineCogs"])
+async def checkOnlineCogs(ctx):
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            try:
+                bot.load_extension(f"cogs.{filename}")
+            except commands.ExtensionAlreadyLoaded:
+                await ctx.send("Cog is loaded")
+            except commands.ExtensionNotFound:
+                await ctx.send("Cog not found")
+            else:
+                await ctx.send("Cog is unloaded")
+
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+        try:
+            bot.load_extension(f"cogs.{filename[:-3]}")
+        except Exception as e:
+            print(e)
 
 bot.run(token)

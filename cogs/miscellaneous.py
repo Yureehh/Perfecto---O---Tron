@@ -2,31 +2,22 @@ import discord
 from discord.ext import commands
 from random import choice
 
-class Start(commands.Cog):
+class Misc(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        n = after.nick
-        if n:
-            if n.lower().count("Yureeh") > 0:
-                await after.edit(nick = "Te piacess")
 
-
-
-
-    @commands.command()
+    @commands.command(name = "ping", aliases = ["lag", "7mega", "latency"], help = "returns the user ping")
     async def ping(self, ctx):
         await ctx.send(f"Your ping is {round(self.bot.latency * 1000)} ms")
 
-    @commands.command()
-    async def hello(self, ctx):
-        await ctx.send(f"Hello {ctx.message.author.name}, howdy?")
+    @commands.command(name = "hello", aliases = ["greetings", "hi", "howdy", "gm", "ga"], help = "greets the user" )
+    async def greeting(self, ctx):
+        await ctx.send(f"Hello {ctx.message.author.name}, howdy?", file = discord.File("images/gm.gif"))
 
-    @commands.command(aliases=["ask", "wondering", "forecast"])
-    async def question(self, ctx, *, question):
+    @commands.command(name = "question", aliases=["ask", "wondering", "forecast"], help = "answers randomly to the user question")
+    async def randomAnswer(self, ctx, *, question):
 
         responses = [   "It is certain.",
                         "It is decidedly so.",
@@ -51,17 +42,12 @@ class Start(commands.Cog):
                         ]
         await ctx.send(f"Question: {question}\nAnswer: {choice(responses)}")
 
-    # @commands.command(aliases=["info", "infos"], help = "Shows this message")
-    # async def help(self, ctx):
-    #     help = embed()
-    #     await ctx.send(content=None, embed=help)
-
-    @commands.command(aliases=["people"])
-    async def users(self, ctx):
+    @commands.command(name = "users", aliases=["people", "members"], help = "returns the number and the names of every user belonging to the server")
+    async def usersOfTheChannel(self, ctx):
         id = bot.get_guild(755003904105906182)
         await ctx.send(f"# of Members: {len(id.members)}")
         for member in id.members:
             await ctx.send(f"{member.name}")
 
 def setup(bot):
-    bot.add_cog(Start(bot))
+    bot.add_cog(Misc(bot))
